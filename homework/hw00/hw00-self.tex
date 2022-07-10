@@ -1,0 +1,63 @@
+% Search for all the places that say "PUT SOMETHING HERE".
+
+\documentclass[11pt]{article}
+\usepackage{amsmath,textcomp,amssymb,geometry,graphicx,enumerate}
+
+\def\Name{CurMack}  % Your name
+\def\SID{PUT SOMETHING HERE}  % Your student ID number
+\def\Homework{0} % Number of Homework
+\def\Session{Spring 2022}
+
+
+\title{CS170--Spring 2022 --- Homework \Homework}
+\author{\Name}
+\markboth{CS170--\Session\  Homework \Homework\ \Name}{CS170--\Session\ Homework \Homework\ \Name}
+\pagestyle{myheadings}
+\date{}
+
+\newenvironment{qparts}{\begin{enumerate}[{(}a{)}]}{\end{enumerate}}
+\def\endproofmark{$\Box$}
+\newenvironment{proof}{\par{\bf Proof}:}{\endproofmark\smallskip}
+
+\textheight=9in
+\textwidth=6.5in
+\topmargin=-.75in
+\oddsidemargin=0.25in
+\evensidemargin=0.25in
+
+
+\begin{document}
+	\maketitle
+	
+	% Collaborators: PUT SOMETHING HERE (LIST OF YOUR COLLABORATORS, OR WRITE NONE)
+	
+	\section*{4. In Between Functions}
+	(Find an algorithm that is slower than polynormial and faster than exponential.)\\
+	Let:
+	$$f(n) = 2^{\log n \cdot \log n} = 2^{(\log n)^2}$$
+	\begin{enumerate}[(a)]
+		\item 
+		Since $\alpha^n = (2^{\log\alpha})^n = 2^{n\cdot \log\alpha}$ and $\log^2 n = \mathcal{O}(n)$, therefore $f(n) = \mathcal{O}(\alpha^n)$ for all $\alpha > 0$.
+		
+		\item 
+		Since $n^c = (2^{\log n})^c = 2^{c\log n }$ and $\log^2 n = \Omega(\log n)$, therefore $f(n) = \Omega(n^c)$  for all $c > 0$.
+		
+		
+	\end{enumerate}
+	
+	
+	\vspace{1cm}
+	
+	\section*{5. Asympotic Bound Practice}
+	Use the L'Hospital rule:
+	\begin{align*}
+		\lim_{x\to \infty}\frac{\log x}{x^\epsilon} 
+		&= \lim_{x\to \infty} \frac{\frac{\mathrm{d}}{\mathrm{d}x}\log x}{\frac{\mathrm{d}}{\mathrm{d}x}x^{\epsilon}}\\
+		&= \lim_{x\to \infty}\frac{\frac{1}{x}}{\epsilon x^{\epsilon - 1}}\\
+		&= \lim_{x\to \infty}\frac{1}{\epsilon x^{\epsilon}}\\
+		&= 0
+	\end{align*}
+	Therefore:
+	$$\log x \in \mathcal{O}(x^{\epsilon})$$
+	for any $\epsilon > 0$.
+\end{document}
