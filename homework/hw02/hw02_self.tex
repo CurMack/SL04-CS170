@@ -1,0 +1,188 @@
+% Search for all the places that say "PUT SOMETHING HERE".
+
+\documentclass[11pt]{article}
+
+\usepackage{amsmath,textcomp,amssymb,geometry,graphicx,enumerate}
+
+\makeatletter
+\newif\if@restonecol
+\makeatother
+\let\algorithm\relax
+\let\endalgorithm\relax
+\usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+
+\def\Class{CS170}
+\def\Name{CurMack}  % Your name
+\def\Homework{2} % Number of Homework
+\def\Session{Spring 2022}
+
+\title{\Class-- \Session --- Homework \Homework}
+\author{\Name}
+\markboth{\Class--\Session\  Homework \Homework\ \Name}{\Class--\Session\ Homework \Homework\ \Name}
+\pagestyle{myheadings}
+\date{\today}
+
+\newenvironment{qparts}{\begin{enumerate}[(a)]}{\end{enumerate}}
+\def\endproofmark{$\Box$}
+\newenvironment{proof}{\par{\bf Proof}:}{\endproofmark\smallskip}
+
+\textheight=9in
+\textwidth=6.5in
+\topmargin=-.75in
+\oddsidemargin=0.25in
+\evensidemargin=0.25in
+
+
+\begin{document}
+	\maketitle
+	
+	\section*{Fast Fourier Transform}
+	A way to move from coefficients to values in time just $O(n\log n)$, when the points $\{x_i\}$ are complex $n$th roots of unity $(1, \omega, \omega^2, \dots , \omega^{n-1})$.
+	$$\langle\text{values}\rangle = \mathbf{FFT}(\langle\text{coefficients}\rangle, \omega)$$
+	$$\langle\text{coeffciients}\rangle = \frac{1}{n} \mathbf{FFT}(\langle\text{values}\rangle, \omega^{-1})$$
+	\begin{algorithm}[H]
+		\caption{FFT($a$, $\omega$)}
+		\KwIn{An array $a - (a_0, a_1, \dots, a_{n-1})$, for $n$ a power of 2. And $\omega$, a primitive $n$th root of unity}
+		\KwOut{$M_n(\omega)a$}
+		
+		\If{$\omega = 1$}{
+			\Return{$a$}
+		}
+		$(s_0, s_1, \dots, s_{n/2-1}) \leftarrow \mathbf{FFT}((a_0, a_2, \dotsm a_{n-2}), \omega^2)$\\
+		$(s_0', s_1', \dots, s_{n/2-1}') \leftarrow \mathbf{FFT}((a_1, a_3, \dotsm a_{n-1}), \omega^2)$\\
+		\For{$j = 0$ to $n/2-1$}{
+			$r_j \leftarrow s_j + \omega^js_j'$\\
+			$r_{j+n/2} \leftarrow s_j - \omega^js_j'$
+		} 
+		\Return{$(r_0, r_1, \dots, r_{n-1})$}
+	\end{algorithm}
+	
+	\vspace{0.7cm}
+	
+	\section*{Depth-First Search}
+	To find all nodes reachable from a particular node:\\
+	\begin{algorithm}[H]
+		\caption{explore($G, v$)}
+		\KwIn{$G = (V,E)$ is a graph; $v \in V$}
+		\KwOut{$visited(u)$ is set to true for all nodes $u$ reachable from $v$}
+		
+		$vistited(v) \leftarrow true$\\
+		$\mathbf{previsited}(v)$\\
+		\For{each edge $(v, u) \in E$}{
+			\If{not $vistited(u)$}{
+				$\mathbf{explore}(u)$
+			}
+		}
+		$\mathbf{postvisited}(v)$
+	\end{algorithm}
+	The \texttt{explore} procedure visits only the portion of the graph reachable from its starting point. To examine the rest of the graph, we need to restart the procedure elsewhere, at some vertex that has not yet been visited.\\
+	\begin{algorithm}[H]
+		\caption{DFS(G)}
+		
+		\For{all $v \in V$}{
+			$visited(v) \leftarrow false$
+		}
+		\For{all $v \in V$}{
+			\If{not $visited(v)$}{
+				$\mathbf{explore}(v)$
+			}
+		}
+	\end{algorithm}
+	\textbf{Running time: } $\mathcal{O}(|V| + |E|)$
+	
+	\vspace{0.7cm}
+	
+	\section*{2 Werewolves}
+	\begin{qparts}
+		\item To test if a single player $x$ is a citizen, we ask the other $n-1$ players to identify  $x$, which takes $\mathcal{O}(n)$ queries.\\
+		\textbf{Claim: } $x$ is a citizen if and only if at least half of the other players say $x$ is a citizen.
+		
+		\item Algorithm 
+		\paragraph{Main Idea} using devide and conquer to get runtime $\mathcal{O}(n\log n)$:\\
+		\begin{algorithm}[H]
+			\caption{FindCitizen($G$) }
+			\KwIn{$G$ is a group of which a majority are citizens}
+			\If{size($G$) == 1}{\Return{ the only person}}
+			Split the $G$ into two sets $A$ and $B$ with the (roughly) same size\\
+			$x \leftarrow \textbf{FindCitizen}(A)$\\
+			$y \leftarrow \textbf{FindCitizen}(B)$\\
+			\If{$\textbf{check}(x, G) == \text{citizen}$}{\Return{$x$}}
+			\Else{\Return{y}}
+		\end{algorithm}
+		
+		\paragraph{Correctness} We will prove that the algorithm returns a citizen if given a group of $n$ people of which a majority are citizens by strong induction(see in reference). The main idea is that after partitioning the group into two groups, at least one of the two groups still mainntens more citizens than werewolves, which will give the right answer.
+		
+		\paragraph{Runtime} Since there are two calls to the algorithm of size $n/2$, and then use linear time to identify the answer, so by using the Master Theorem:
+		$$T(n) = 2T(\frac{n}{2}) + \mathcal{O}(n) = \mathcal{O}(n\log n)$$
+
+		\item Algorithm 
+		\paragraph{Main Idea} the algorithm to get runtime $\mathcal{O}(n)$:\\
+		\begin{algorithm}[H]
+			\caption{FindCitizen($G$) }
+			\KwIn{$G$ is a group of which a majority are citizens}
+			\If{size($G$) == 1}{\Return{ the only person}}
+			$G' \leftarrow \phi$\\
+			Split $G$ into pairs\\
+			\For{each pair $p = (x, y)$}{
+				\If{$\mathbf{Query}(p) == (c,c)$}{
+					$G' \leftarrow G' \cup x$
+				}
+			}
+			\Return{ $\mathbf{FindCitizen}(G')$}
+		\end{algorithm}
+		
+		\paragraph{Correctness} After each pass through the algorithm, citizens in $G'$ remain in the majority if they were in the majority before the pass. Respectively discuss the three situations.(See in reference)
+		
+		\paragraph{Runtime} Since there is one call to the algorithm of size at most $n/2$, and then use linear time to identify the answer, so by using the Master Theorem:
+		$$T(n) \leq T(\frac{n}{2}) + \mathcal{O}(n) = \mathcal{O}(n)$$
+	\end{qparts}
+	
+	\vspace{0.7cm}
+	
+	\section*{3 Modular Fourier Transform}
+	\begin{qparts}
+		\item $\{1,2,3,4\}$ are the $4^{th}$ roots of unity($\bmod$ 5):
+		$$1^4 = 1 \equiv 1 (\bmod \ 5) $$
+		$$2^4 = 16 \equiv 1 (\bmod \ 5) $$
+		$$3^4 = 81 \equiv 1 (\bmod \ 5) $$
+		$$4^4 = 256 \equiv 1 (\bmod \ 5) $$
+		for $\omega = 2$:
+		$$1 + \omega + \omega^2 + \omega^3 = 1 + 2 + 4 + 8 = 15 \equiv 0 (\bmod \ 5)$$
+		
+		\item Since
+		$$\omega^0 = 1, \omega^1 = 2, \omega^2 = 4, \omega^3 = 3$$
+		use the FFT algorithm at the beginning and $\bmod \ 5$ to get the answer: $(0,4,4,2)$
+		
+		\item Notice that when $n = 4$, $4^{-1} \equiv4(\bmod \ 5)$ i.e. $4 \times 4 \equiv 1(\bmod \ 5)$. And $w^{-1}$ will be:
+		$$\omega^0 = 1, \omega^1 = 3, \omega^2 = 4, \omega^3 = 2$$
+		use the FFT algorithm at the beginning and $\bmod \ 5$ to get  $(0,1,2,2)$.\\
+		Then, $4\times (0,1,2,2) \equiv (0,4,3,3) (\bmod \ 5)$
+		
+		\item Since we have $\mathbf{FFT}(0,3,2,0) = (0,4,4,2)$ and $\mathbf{FFT}(3,4,0,0) = (2,1,4,0)$.\\
+		do the dot product: $(0,4,4,2) .* (2,1,4,0) \equiv (0,4,1,0) (\bmod \ 5)$.\\
+		Also we have $\mathbf{iFFT}(0,4,1,0) = (0,4,3,3)$, which is the coefficients of the polynomial: $4x + 3x^2 + 3x^3$.
+	\end{qparts}
+	
+	\vspace{0.7cm}
+	
+	\section*{4 Finding Clusters}
+	\begin{qparts}
+		\item The algorithm in $\mathcal{O}(|V| + |E|)$:\\
+		\begin{algorithm}[H]
+			\caption{FindClusters($G$)}
+			\While{there are unvisted nodes in $G$}{
+				run \textbf{DFS} on the temp samllest unvisited node $j$\\
+				\For{$i$ in this search}{
+					$m(i) \leftarrow j$
+				}
+			}
+		\end{algorithm}
+		To see that this algorithm is correct, note that if a vertex $i$ is assigned a value then that value is the smallest of the nodes that can reach it in $G$, and every node is assigned a value because the loop does not terminate until this happens.\\
+		The running time is $\mathcal{O}(|V| + |E|)$ since the algorithm is just a modification of \textbf{DFS}.
+		
+		\item We start by reversing all edges in $G$, i.e. replacing each edge $(u, v)$ with the edge $(v, u)$, and then just using our algorithm from the previous part. This works because in the reversed graph, we can reach $j$ from $i$ if and only if we can reach $i$ from $j$ in the original.		
+	\end{qparts}
+	
+	\vspace{0.7cm}
+	
+\end{document}
