@@ -1,0 +1,173 @@
+\documentclass[11pt]{article}
+
+\usepackage{amsmath,textcomp,amssymb,geometry,graphicx,enumerate}
+
+\makeatletter
+\newif\if@restonecol
+\makeatother
+\let\algorithm\relax
+\let\endalgorithm\relax
+\usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+
+\def\Class{CS170}
+\def\Name{CurMack}  % Your name
+\def\Homework{2} % Number of Homework
+\def\Session{Spring 2022}
+
+\title{\Class-- \Session --- Homework \Homework}
+\author{\Name}
+\markboth{\Class--\Session\  Homework \Homework\ \Name}{\Class--\Session\ Homework \Homework\ \Name}
+\pagestyle{myheadings}
+\date{\today}
+
+\newenvironment{qparts}{\begin{enumerate}[(a)]}{\end{enumerate}}
+\def\endproofmark{$\Box$}
+\newenvironment{proof}{\par{\bf Proof}:}{\endproofmark\smallskip}
+
+\textheight=9in
+\textwidth=6.5in
+\topmargin=-.75in
+\oddsidemargin=0.25in
+\evensidemargin=0.25in
+
+\begin{document}
+	\maketitle
+	
+	\section*{Breadth-First Search}
+	Breadth-first search finds shortest paths in any graph whose edges have unit length.\\
+	\begin{algorithm}[H]
+		\caption{BFS($G, s$)}
+		\KwIn{Graph $G = (V, E)$, directed or undirected; vertex $s \in V$}
+		\KwOut{For all vertices $u$ reachable from $s$, $dist(u)$ is set to the distance from $s$ to $u$.}
+		
+		\For{all $u \in V$}{
+			$dist(u)\leftarrow \infty$
+		}
+		$dist(s) \leftarrow 0$\\
+		$Q \leftarrow [s]$ (queue containing just $s$)\\
+		\While{$Q$ is not empty}{
+			$u \leftarrow \mathbf{eject}(Q)$\\
+			\For{all edges $(u, v)\in E$}{
+				\If{$dist(v) == \infty$}{
+					$\mathbf{inject}(Q, v)$\\
+					$dist(v) \leftarrow dist(u) + 1$
+				}	
+			}
+		}
+	\end{algorithm}
+	\textbf{Running Time:} $\mathcal{O}(|V| + |E|)$
+	
+	\vspace{0.7cm}
+	
+	\section*{Dijkstra's Algorithm}
+	In summary, we can think of Dijkstra's algorithm as just \texttt{BFS}, except it uses a priority queue instead of a regular queue, so as to prioritize nodes in a way that takes edge lengths into account.
+	\begin{algorithm}[H]
+		\caption{dijkstra($G, l, s$)}
+		\KwIn{Graph $G = (V, E)$, directed or undirected; positive edge lengths$\{l_e: e\in E\}$; vertex $s \in V$}
+		\KwOut{For all vertices $u$ reachable from $s$, $dist(u)$ is set to the distance from $s$ to $u$}
+		
+		\For{all $u \in v$}{
+			$dist(u) \leftarrow \infty$\\
+			$prev(u) \leftarrow \texttt{nil}$
+		}
+		$H \leftarrow \texttt{makequeue}(V)$ (using dist-values as keys)\\
+		\While{$H$ is not empty}{
+			$u \leftarrow \texttt{deletemin}(H)$\\
+			\For{all edges$(u, v) \in E$}{
+				\If{$dist(v) > dist(u) + l(u, v)$}{
+					$dist(v) \leftarrow dist(u) + l(u, v)$\\
+					$prev(v) \leftarrow u$\\
+					$\texttt{decreasekey}(H, v)$
+				}
+			} 
+		}
+	\end{algorithm}
+	\textbf{Running Time:} Since \texttt{makequeue} takes at most as long as $|V|$ \texttt{insert} operations, we get a total of $|V|$ \texttt{deletemin} and $|V| + |E|$ \texttt{insert}/\texttt{decreasekey} operations. The time needed for these varies by implementation; for instance, a binary heap gives an overall running time of $\mathcal{O}((|V| + |E|)\log |V|)$.
+
+	\vspace*{0.7cm}
+	
+	\section*{Bellman-Ford Algorithm}
+	The Bellman-Ford algorithm for single-source shortest paths in general graphs:\\
+	\begin{algorithm}[H]
+		\caption{\texttt{update}($(u, v) \in E$)}
+		$dist(v) \leftarrow \min\{dist(v), dist(u) + l(u, v)\}$
+	\end{algorithm}
+
+	\begin{algorithm}[H]
+		\caption{\texttt{shortest-paths}$(G, l, s)$}
+		\KwIn{Directed graph $G = (V, E)$; edge lengths $\{l_e: e\in E\}$ with no negative cycles; vertex $s\in V$}
+		\KwOut{For all vertices $u$ reachable from $s$, $dist(u)$ is set to the distance from $s$ to $u$}
+		\For{all $u \in V$}{
+			$dist(u) \leftarrow \infty $\\
+			$prev(u) \leftarrow \texttt{nil}$
+		}
+		$dist(s) \leftarrow 0$\\
+		\Repeat{$|V|-1$ times}{
+			\For{all $e \in E$}{
+				\texttt{update}($e$)
+			}
+		}
+	\end{algorithm}
+	\textbf{Running Time:} $\mathcal{O}(|V| \cdot |E|)$
+	
+	\section*{2 Preorder, Postorder}
+	For all $v$ that $pre(r) < pre(v) < post(v) < post(r)$ ($v$ is reachable from $r$), set $pre'(v) = pre(v)-1$, $post'(v) = post(v) -1$.\\
+	For all $v$ that $pre(r) < post(r) < pre(v) < post(v)$ ($v$ is in different connected component from $r$), set $pre'(v) = pre(v)-2$, $post'(v) = post(v) -2$.\\ 
+	
+	\section*{3 Where's the Graph?}
+	\begin{qparts}
+		\item run \texttt{BFS}, for each number, there are 5 edges: $(+1, -1, +y, -y, /y)$\\
+		\begin{algorithm}[H]
+			\caption{BFS2021($x, y$)}
+			\For{all $u \in V$}{
+				$dist(u)\leftarrow \infty$
+			}
+			$dist(x) \leftarrow 0$\\
+			$Q \leftarrow [x]$ (queue containing just $s$)\\
+			\While{$Q$ is not empty}{
+				$u \leftarrow \mathbf{eject}(Q)$\\
+				\For{all $v \in \{u+1, u-1, u+y, u-y, u/y(\text{if possible})\}$}{
+					\If{$dist(v) == \infty$}{
+						$\mathbf{inject}(Q, v)$\\
+						$dist(v) \leftarrow dist(u) + 1$\\
+						\If{$v == 2021$}{
+							\Return{$dist(v)$}
+						}
+					}	
+				}
+			}
+		\end{algorithm}
+		
+		\item Construct the species as a graph: each specy is a vertex and an edge from $x$ to $y$ means $y$ directly descended from $x$. Run \texttt{DFS} on a directed gragh $G$, and have the pre-visit and post-visit numbers $pre(v)$, $post(v)$ for every vertex. When the program is queried, it checks whether the edge $(a, b)$ is a back edge ($a$ is descended from $b$), a tree or forward edge ($b$ is descended from $a$), or a cross edge ($a$ and $b$ share a common ancestor but are not descended from each other)
+		
+		\item We can view each box as a node in a directed graph, with an edge from a to
+		$b$ indicating that $a$ fits in $b$. (see in reference) Run \texttt{BFS} from the smallest box $x$ to find the shortest path to any other box in linear time on the reversed DAG.  
+	\end{qparts}
+	
+	\section*{4 The Greatest Roads in America}
+	(See in reference) We want to build a new graph $G'$ such that we can apply Dijkstra’s algorithm on $G′$ to solve the problem.\\
+	Create $G'$ which consists of $G_0, G_1, G_2, \dots, G_k$. \\
+	For each $v \in V$, add $v_0, v_1, \dots ,v_k$ to $V'$.\\
+	For each $(u, v) \in E$, add $(u_0, v_0), (u_1, v_1), \dots, (u_k, v_k)$ to $E'$.\\
+	For each $(v, w) \in R$, add $(v_0, w_1), (v_1, w_2), \dots, (v_{k-1}, w_k)$ to $E'$\\
+	call \texttt{Dijkstra} to find shortest $h_0 \rightarrow h_k$ path. \\
+	\textbf{Runtime}: $\mathcal{O}(k(m + n) \log n)$
+	
+	\section*{5 Pattern Matching}
+	\begin{qparts}
+		\item $\mathcal{O}(mn)$ time algorithm for this problem: \\
+		\begin{algorithm}[H]
+			\For{$i \in \{0,1,\dots, m-n\}$}{
+				check if $s[i : i+n-1]$ differs from $g$ in at most $k$ positions.
+			}
+		\end{algorithm}
+		Since there are $\mathcal{O}(m)$ iterations and each check takes $\mathcal{O}(n)$ time, the time complexity is $\mathcal{O}(mn)$
+		
+		\item 
+		(See in reference) use the mapping $\Phi:\{0,1\} \rightarrow \{-1, 1\}$ on $g, s$ and get $g'$, $s'$. So $p_1(x) = a_0 + a_1x + \dots + a_{n-1}x^{n-1}$ where $a_d = g'(n-d-1)$ for all $d\in\{0,1,\dots, n-1\}$. Similarly, let $p_2(x) = b_0 + b_1x + \dots + b_{m-1}x^{m-1}$ where $b_d = s'(d)$ for all $d \in \{0, 1, \dots, m-1\}$.\\
+		Noe consider $p_3(x) = p_1(x) \times p_2(x)$, the coefficients will be:
+		$$c_{n-1+j} = \sum_{i=0}^{n-1}a_{n-1-i}b_{j+i} = \sum_{i=0}^{n-1}g'(i)s'(j+i)$$
+		for any $j \in \{0, 1, \dots , m-n\}$. If these strings differ in at most $k$ positions, then this dot product will be at least $n-2k$. Thus we need to output all the $j$'s between $0$ and $m-n$ such that $c_{n-1+j}\geq n-2k$.\\
+		Runtime: $\mathcal{O}(m\log m)$
+	\end{qparts}
+\end{document}
