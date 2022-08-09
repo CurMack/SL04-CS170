@@ -1,0 +1,182 @@
+\documentclass[11pt]{article}
+
+\usepackage{amsmath,textcomp,amssymb,geometry,graphicx,enumerate}
+
+\makeatletter
+\newif\if@restonecol
+\makeatother
+\let\algorithm\relax
+\let\endalgorithm\relax
+\usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+
+\def\Class{CS170}
+\def\Name{CurMack}  % Your name
+\def\Homework{4} % Number of Homework
+\def\Session{Spring 2022}
+
+\title{\Class-- \Session --- Homework \Homework}
+\author{\Name}
+\markboth{\Class--\Session\  Homework \Homework\ \Name}{\Class--\Session\ Homework \Homework\ \Name}
+\pagestyle{myheadings}
+\date{\today}
+
+\def\mi{\textbf{Main Idea}:}
+\def\co{\textbf{Correctness}:}
+\def\rt{\textbf{Runtime}:}
+
+\newenvironment{qparts}{\begin{enumerate}[(a)]}{\end{enumerate}}
+\def\endproofmark{$\Box$}
+\newenvironment{proof}{\par{\bf Proof}:}{\endproofmark\smallskip}
+
+\textheight=9in
+\textwidth=6.5in
+\topmargin=-.75in
+\oddsidemargin=0.25in
+\evensidemargin=0.25in
+
+\begin{document}
+	\maketitle
+	
+	\section*{Disjoint Set}
+	Union by rank and path compresion:\\
+	\begin{algorithm}[H]
+		\caption{\texttt{makeset}($x$)}
+		
+		$\pi(x) \leftarrow x$\\
+		$rank(x) \leftarrow 0$
+	\end{algorithm}
+	
+	\begin{algorithm}[H]
+		\caption{\texttt{find}($x$)}
+		
+		\If{$x \neq \pi(x)$}{
+			$\pi(x) \leftarrow \texttt{find}(\pi(x))$
+		}
+	\end{algorithm}
+
+	\begin{algorithm}[H]
+		\caption{\texttt{union}($x, y$)}
+		
+		$r_x \leftarrow \texttt{find}(x)$\\
+		$r_y \leftarrow \texttt{find}(y)$\\
+		\If{$r_x == r_y$}{\Return{ }}
+		\If{$rank(r_x) > rank(r_y)$}{
+			$\pi(r_y) \leftarrow r_x$
+		}
+		\Else{
+			$\pi(r_x) \leftarrow r_y$\\
+			\If{$rank(r_x) == rank(r_y)$}{
+				$rank(r_y) \leftarrow rank(r_y) +1$
+			}
+		}
+	\end{algorithm}
+	Each \texttt{find} takes $\mathcal{O}(\log^* n)$ time.
+	
+	\section*{Kruskal's algorithm}
+	Kruskal’s minimum spanning tree algorithm starts with the empty graph and then selects edges from $E$ according to the following rule:
+	\begin{center}
+		Repeatedly add the next lightest edge that doesn’t produce a cycle.
+	\end{center}
+	\textbf{Cut property:}  Suppose edges $X$ are part of a minimum spanning tree of $G = (V, E)$. Pick any subset of nodes $S$ for which $X$ does not cross between $S$ and $V - S$, and let $e$ be the lightest edge across this partition. Then $X \cup \{e\}$ is part of some $\mathbf{MST}$.\\
+	\begin{algorithm}[H]
+		\caption{\texttt{kruskal}($G, w$)}
+		\KwIn{A connected undirected graph $G = (V, E)$ with edge weights $w_e$}
+		\KwOut{A minimum spanning tree defined by the edges $X$}
+		
+		\For{all $u \in V$}{
+			$\texttt{makeset}(u)$
+		}
+		$X \leftarrow \phi$ \\
+		Sort the edges $E$ by weight \\
+		\For{all edges $(u, v) \in E$, in increasing order of weight}{
+			\If{$\texttt{find}(u) \neq \texttt{find}(v)$}{
+				add edge $(u, v)$ to $X$\\
+				$\texttt{union}(u, v)$
+			}
+		}
+	\end{algorithm}
+
+	\section*{Prim's algorithm}
+	Prim’s minimum spanning tree algorithm:\\
+	\begin{algorithm}[H]
+		\caption{\texttt{prim}$(G, w)$}
+		\KwIn{A connected undirected graph $G = (V, E)$ with edge weights $w_e$}
+		\KwOut{A minimum spanning tree defined by the edges $X$}
+		
+		\For{all $u \in V$}{
+			$cost(u) \leftarrow \infty$\\
+			$prev(u) \leftarrow \texttt{nil}$
+		}
+		Pick any initial node $u_0$\\
+		$cost(u_0) \leftarrow 0$\\
+		$H \leftarrow \texttt{makequeue}(V)$ (priority queue, using cost-values as keys)\\
+		\While{$H$ is not empty}{
+			$v \leftarrow \texttt{deletemin}(H)$\\
+			\For{each $(v, z) \in E$}{
+				\If{$cost(z) > w(v,z)$}{
+					$cost(z) \leftarrow x(v,z)$\\
+					$prev(z) \leftarrow v$\\
+					$\texttt{decreasekey}(H,z)$
+				}
+			}
+		}
+	\end{algorithm}
+	
+	\section*{Huffman encoding}
+	\begin{algorithm}[H]
+		\caption{\texttt{Huffman}$(f)$}
+		\KwIn{An array $f[1\dots n]$ of frequencies}
+		\KwOut{An encoding tree with $n$ leaves}
+		
+		Let $H$ be a priority queue of intergers, ordered by $f$\\
+		\For{$1 = i:n$}{
+			$\texttt{insert}(H, i)$
+		}
+		\For{$k = n+1: 2n-1$}{
+			$i \leftarrow \texttt{deletemin}(H), j \leftarrow \texttt{deletemin}(H)$\\
+			create a node numbered $k$ with children $j$\\
+			$f[k] \leftarrow f[i] + f[j]$\\
+			$\texttt{insert}(H, k)$
+		}
+	\end{algorithm}
+	\rt: $\mathcal{O}(n \log n)$ if a binary heap is used.
+	
+	\section*{2 Updating a MST}
+	\begin{qparts}
+		\item \textbf{Main Idea: }Do nothing. \\
+		\textbf{Runtime: }$\mathcal{O}(1)$ time.
+		
+		\item \textbf{Main Idea: }Add $e$ to $T$. Use \texttt{DFS} to find the cycle that now exists in $T$. Remove the heaviest edge in the cycle from $T$.\\
+		\textbf{Runtime: }$\mathcal{O}(|V|)$ time.
+		
+		\item \textbf{Main Idea: }Do nothing. \\
+		\textbf{Runtime: }$\mathcal{O}(1)$ time. 
+		
+		\item \textbf{Main Idea: } Delete $e$ from $T$. Now $T$ has two components, $A$ and $B$. Find the lightest edge with one endpoint in each of $A$ and $B$, and add this edge to $T$.\\
+		\textbf{Runtime: }$\mathcal{O}(|V| + |E|)$ time.
+		
+	\end{qparts}
+	
+	\section*{3 Twenty Questions}
+	\textbf{Main Idea: } Creae a Huffman Tree on weights $P$.\\
+	\textbf{Correctness: } The Huffman tree gives us min code length. The code length is the cost of guess strategy, which means Huffman tree gives us min cost strategy.\\
+	\textbf{Runtime: } $\mathcal{O}(n \log n)$ (this is dominated by the time to sort the probabilities)
+	
+	\section*{4 Graph Game}
+	\begin{qparts}
+		\item Marking a node can only ever increase your score, since all values are positive.
+		
+		\item 
+		\mi Picking nodes in decreasing order
+		
+		\co We have ordering $v_1, v_2, \dots, v_n$ they are not sorted s.t. $l(v_i) < l(v_{i+1})$\\
+		case 1: $v_i$ and $v_{i+1}$ are disconnected. No edges between means the score doesn't change.\\
+		case 2: There are edges between $v_i$ and $v_{i+1}$ our score will increase by $l(v{i+1}) - l(v_i)$, if we swapped ordering such that $l(v_i) > l(v{i+1})$. THe solution will be decreasing order.
+		
+		\rt $\mathcal{O}(n\log n)$
+		
+		\item The same graph as example and take $l(A) = 1, l(B) = -1, l(C) = -2$. Then the greedy algorithm gives value $0$. The optimum is $A,B$ with value $1$.
+		
+		\item The same graph as example and take $l(A) = 1, l(B) = -1, l(C) = -2$. Then the modified greedy algorithm gives $A$ with value $0$. The optimum is $A,B$ with value $1$.
+	\end{qparts}
+\end{document}
