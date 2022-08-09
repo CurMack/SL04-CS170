@@ -1,0 +1,117 @@
+\documentclass[11pt]{article}
+
+\usepackage{amsmath,textcomp,amssymb,geometry,graphicx,enumerate}
+
+\makeatletter
+\newif\if@restonecol
+\makeatother
+\let\algorithm\relax
+\let\endalgorithm\relax
+\usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+
+\def\Class{CS170}
+\def\Name{CurMack}  % Your name
+\def\Homework{5} % Number of Homework
+\def\Session{Spring 2022}
+
+\title{\Class-- \Session --- Homework \Homework}
+\author{\Name}
+\markboth{\Class--\Session\  Homework \Homework\ \Name}{\Class--\Session\ Homework \Homework\ \Name}
+\pagestyle{myheadings}
+\date{\today}
+
+\def\mi{\textbf{Main Idea}: }
+\def\co{\textbf{Correctness}: }
+\def\rt{\textbf{Runtime}: }
+
+\newenvironment{qparts}{\begin{enumerate}[(a)]}{\end{enumerate}}
+\def\endproofmark{$\Box$}
+\newenvironment{proof}{\par{\bf Proof}:}{\endproofmark\smallskip}
+
+\textheight=9in
+\textwidth=6.5in
+\topmargin=-.75in
+\oddsidemargin=0.25in
+\evensidemargin=0.25in
+
+\begin{document}
+	\maketitle
+	
+	\section*{Knapsack with repetition}
+	Define:
+	\begin{center}
+		$K(w) = $ maximum value achievable with a knapsack of capacity $w$.
+	\end{center}
+	express this in terms of smaller subproblems:
+	$$k(w) = \max_{i: w_i \leq w}\{K(w - w_i) + v_i\}$$
+	where as usual our convention is that the maximum over an empty set is $0$.\\
+	So the algorithm:\\
+	\begin{algorithm}[H]
+		$K(0) \leftarrow 0$\\
+		\For{$w = 1: W$}{
+			$K(w) \leftarrow \max\{K(w - w_i) + v_i : w_i \leq w\}$
+		}
+		\Return{$K(W)$}
+	\end{algorithm}
+	\rt  $\mathcal{O}(nW)$
+	
+	\section*{Knapsack without repetition}
+	Definr:
+	\begin{center}
+		$K(w, j) = $ maximum value achievable using a knapsack of capacity $w$ and items $1, \dots j$.
+	\end{center}
+	The answer we seek is $K(W, n)$.\\
+	express a subproblem $K(w, j)$ in terms of smaller subproblems:
+	$$K(w, j) = \max\{K(w - w_j, j-1) + v_j, K(w, j-1)\}.$$
+	So the algorithm:\\
+	\begin{algorithm}[H]
+		Initialize all $K(0, j) \leftarrow 0$ and all $K(w, 0) \leftarrow 0$\\
+		\For{$j = 1: n$}{
+			\For{$w = 1: W$}{
+				\If{$w_j > w$}{
+					$K(w, j) \leftarrow K(w, j-1)$
+				}
+				\Else{
+					$K(w, j) \leftarrow \max\{K(w, j-1), K(w - w_j, j-1) + v_j\}$
+				}
+			}
+		}
+		\Return{$K(W, n)$}
+	\end{algorithm}
+	\rt $\mathcal{O}(nW)$
+	
+	\section*{2  Copper Pipes}
+	\mi Knapsack with repetition:\\
+	\begin{algorithm}[H]
+		\caption{\texttt{cutPipe}$(price, n)$}
+		$val(0) \leftarrow 0$\\
+		\For{$w = 1: n$}{
+			$max\_val \leftarrow 0$\\
+			\For{$i = 1: w$}{
+				$max\_val \leftarrow \max\{val(w - i) + price(i), max\_val\}$
+			}
+			$val(i) \leftarrow max\_val$
+		}
+		\Return{$val(n)$}
+	\end{algorithm}
+	\rt  $\mathcal{O}(n^2)$
+	
+	\section*{3 Egg Drop}
+	\begin{qparts}
+		\item 
+		$f(1, k) = 1$: drop the egg from the single floor.\\
+		$f(0, k) = 0$: there is only one possible value for $l$.\\
+		$f(n, 1) = n$:  drop it from floor $1$ and going up, until it breaks.\\
+		$f(n, 0) = \infty$:  the problem is unsolvable if we have no eggs to drop.
+		
+		\item the recurrence relation is:
+		$$f(n, k) = \min_{x\in \{1\dots n\}} \max\{f(x-1, k-1), f(n-x, k)\}$$
+		Suppose we drop at floor $x$:
+		\begin{itemize}
+			\item breaks: we know $l \in [0, x-1]$, and we have $k-1$ eggs $\Rightarrow f(x-1, k-1)$
+			
+			\item doesn't break: now $l \in [x, n]$, $k$ eggs $\Rightarrow f(n-x, k)$
+		\end{itemize}
+		And we pick the beat $x$
+	\end{qparts}
+\end{document}
