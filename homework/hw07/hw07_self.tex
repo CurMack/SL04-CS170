@@ -1,0 +1,127 @@
+\documentclass[11pt]{article}
+
+\usepackage{amsmath,textcomp,amssymb,geometry,graphicx,enumerate,tikz}
+
+\makeatletter
+\newif\if@restonecol
+\makeatother
+\let\algorithm\relax
+\let\endalgorithm\relax
+\usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+
+\def\Class{CS170}
+\def\Name{CurMack}  % Your name
+\def\Homework{7} % Number of Homework
+\def\Session{Spring 2022}
+
+\title{\Class-- \Session --- Homework \Homework}
+\author{\Name}
+\markboth{\Class--\Session\  Homework \Homework\ \Name}{\Class--\Session\ Homework \Homework\ \Name}
+\pagestyle{myheadings}
+\date{\today}
+
+\def\mi{\textbf{Main Idea}: }
+\def\co{\textbf{Correctness}: }
+\def\rt{\textbf{Runtime}: }
+\def\ft{\textbf{Function}: }
+\def\bc{\textbf{Base Case}: }
+\def\sp{\textbf{Space}: }
+\def\rc{\textbf{Recurrence}: }
+
+
+\newenvironment{qparts}{\begin{enumerate}[(a)]}{\end{enumerate}}
+\def\endproofmark{$\Box$}
+\newenvironment{proof}{\par{\bf Proof}:}{\endproofmark\smallskip}
+
+\textheight=9in
+\textwidth=6.5in
+\topmargin=-.75in
+\oddsidemargin=0.25in
+\evensidemargin=0.25in
+
+\begin{document}
+	\maketitle
+	\section*{Linear Program}
+	A linear  program is an optimization problem that seeks the optimal assignment for a linear objective over linear constraints. Let $x\in \mathbb{R}^n$ be the set of variables and $A \in \mathbb{R}^{m\times n}$, $b\in \mathbb{R}^m$, $c\in \mathbb{R}^n$. The canonical form of a linear program is:
+	\begin{center}
+		minimize $c^{T}x$\\
+		subject to $Ax \geq b$\\
+		$x\geq 0$
+	\end{center}
+	Any linear program can be written in canonical form.
+	
+	\section*{Dual}
+	The dual of canonial LP is:
+	\begin{center}
+		maximize $b^{T}y$\\
+		subject to $A^Ty \leq c$\\
+		$y\geq 0$
+	\end{center}
+	\textbf{Weak duality}: The objective value of any feasible dual $\leq$ objective value of any feasible primal.
+	\textbf{Strong duality}: The optimal objective values of these two are equal.\\
+	Both are solvable in polynomial time by the Ellipsoid or Interior Point Method.
+	
+	\section*{2  Modeling: Tricks of the Trade}
+	Create a new variable $z_i$ that will equal $|y_i − (a + bx_i)|$ in the optimal solution.\\
+	Since the smallest value of $z$ that satisfies $z \geq x$, $z \geq -x$ is $z = |x|$.\\
+	Now, consider the following linear programming problem:
+	\begin{center}
+		$\min \sum_{i=1}^{n}z_i$\\
+		subject to $\begin{cases}
+			z_i \geq y_i - (a+bx_i) & \text{for } 1 \leq i \leq n\\
+			z_i \geq (a+bx_i) - y_i & \text{for } 1 \leq i \leq n
+		\end{cases}$\\
+	\end{center}
+	If for some solution we have that $z_i > |y_i − (a + bx_i)|$, then by setting $z_i = |y_i − (a + bx_i)|$ we will get a solution with a smaller value of the objective function, therefore the initial solution was not optimal. Hence, the constraints requires that the optimal solution will set $z_i = |y_i−(a+bx_i)|$, so the new problem is indeed equivalent to the original problem.. And now it is a linear programming problem.
+	
+	\section*{3  Jeweler}
+	\begin{qparts}
+		\item 
+		Let $x = $ number of necklaces, \\
+		$y = $ number of engagement rings.\\
+		Our goal is:
+		\begin{center}
+			maximize $60x+ 30y$\\
+			subject to: $\begin{cases}
+				4x+y \leq 80\\
+				2x+3y \leq 90\\
+				x \geq 0\\
+				y \geq 0
+			\end{cases}$
+		\end{center}
+		And the feasible region:
+		
+		\begin{figure}[h]
+			\centering
+			\includegraphics[width=.5\textwidth]{fr1}
+			\caption{Feasible Region}
+		\end{figure}
+			
+		The vertices are $(20, 0)$, $(15, 20)$, $(0, 30)$, and the objective is maximized at $(15, 20)$, where $60x + 30y = 1500$.
+		
+		\item 
+		$(0, 30)$: $C \leq 20$\\
+		$(15, 20)$: $20 \leq C\leq 120$\\
+		$(20, 0)$: $C \geq 120$
+	\end{qparts}
+	
+	\section*{4  Standard Form LP}
+	\begin{qparts}
+		\item $\min -\sum_ic_ix_i$
+		
+		\item $x_1 + s_1 = b_1$\\
+		$s_1 \geq 0$
+		
+		\item $x_2 - s_2 = b_2$\\
+		$s_2 \geq 0$
+		
+		\item break into $x_3 \leq b_1$ and $x_3 \geq b_2$, use constraints above.
+		
+		\item $x_1 + x_2 + x_3 + s_3 = b_3$\\
+		$s_3 \geq 0$
+		
+		\item $\min t$, $t \geq y_1$, $t \geq y_2$
+		
+		\item Replace $x_4$ by $x^+ - x^-$ and $x^+\geq 0, x^- \geq 0$ 
+	\end{qparts}
+\end{document}
